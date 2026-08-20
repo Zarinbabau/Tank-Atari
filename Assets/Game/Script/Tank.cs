@@ -2,27 +2,66 @@ using UnityEngine;
 
 public class TankController : MonoBehaviour
 {
-    [Header("Movimentação")]
-    public float velocidade = 5f;
-    public float velocidadeRotacao = 100f;
+    public float moveSpeed = 5f;
+    public float rotationSpeed = 180f;
+
+    public Transform spawnPoint;     
+    public GameObject bulletPrefab;  
+    public float bulletSpeed = 10f;
+
+    private Rigidbody rb;
+
+    public float fireCooldown = 1f; 
+    private float nextFireTime = 0f;
+
+    public string botaoAtirar;
+
+    void Awake()
+    {
+        rb = GetComponent<Rigidbody>();
+        
+        // Trava TODAS as rotações causadas por colisão/física.
+        // O script (rb.MoveRotation) continuará rotacionando normalmente.
+        rb.constraints = RigidbodyConstraints.FreezeRotation;
+    }
 
     void Update()
     {
-        // Rotação
-        if (Input.GetKey(KeyCode.A))
+        if (Input.GetButtonDown(botaoAtirar) && Time.time >= nextFireTime)
         {
-            transform.Rotate(0, -velocidadeRotacao * Time.deltaTime, 0);
-        }
+            nextFireTime = Time.time + fireCooldown;
 
-        if (Input.GetKey(KeyCode.D))
-        {
-            transform.Rotate(0, velocidadeRotacao * Time.deltaTime, 0);
-        }
+            GameObject bullet = Instantiate(
+                bulletPrefab,
+                spawnPoint.position,
+                spawnPoint.rotation
+            );
 
-        // Movimento para frente
-        if (Input.GetKey(KeyCode.W))
-        {
-            transform.Translate(Vector3.forward * velocidade * Time.deltaTime);
+            Rigidbody bulletRb = bullet.GetComponent<Rigidbody>();
+
+            if (bulletRb != null)
+            {
+                bulletRb.linearVelocity = spawnPoint.right * bulletSpeed;
+            }
         }
+    }
+
+    void FixedUpdate()
+    {
+        // Rotação controlada exclusivamente pelo jogador
+        float horizontal = Input.GetAxis("Horizontal");
+        float vertical = Input.GetAxis("Vertical");
+
+        Quaternion deltaRotation = Quaternion.Euler(
+            0f,
+            horizontal * rotationSpeed * Time.fixedDeltaTime,
+            0f
+        );
+
+        rb.MoveRotation(rb.rotation * deltaRotation);
+
+        // Movimento (preserva a velocidade Y para gravidade)
+        Vector3 targetVelocity = transform.right * vertical * moveSpeed;
+        rb.linearVelocity = new Vector3(targetVelocity.x, rb.linearVelocity.y, targetVelocity.z);
     }
 }
