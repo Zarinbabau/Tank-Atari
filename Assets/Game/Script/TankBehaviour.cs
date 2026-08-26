@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class TankController : MonoBehaviour
+public class TankBehaviour : MonoBehaviour
 {
     public float moveSpeed = 5f;
     public float rotationSpeed = 180f;
@@ -15,6 +15,11 @@ public class TankController : MonoBehaviour
     private float nextFireTime = 0f;
 
     public string botaoAtirar;
+    public string eixo_horizontal;
+    public string eixo_vertical;
+
+
+
 
     void Awake()
     {
@@ -49,8 +54,12 @@ public class TankController : MonoBehaviour
     void FixedUpdate()
     {
         // Rotação controlada exclusivamente pelo jogador
-        float horizontal = Input.GetAxis("Horizontal");
-        float vertical = Input.GetAxis("Vertical");
+
+        //float horizontal = Input.GetAxis("Horizontal");
+        //float vertical = Input.GetAxis("Vertical");
+
+        float horizontal = Input.GetAxis(eixo_horizontal);
+        float vertical = Input.GetAxis(eixo_vertical);
 
         Quaternion deltaRotation = Quaternion.Euler(
             0f,
