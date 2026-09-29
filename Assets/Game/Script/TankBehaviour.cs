@@ -15,14 +15,18 @@ public class TankBehaviour : MonoBehaviour
     private float nextFireTime = 0f;
 
     [Header("Tiro Especial")]
-    public GameObject specialBulletPrefab; // NOVO: Prefab do tiro especial
-    public float specialFireCooldown = 5f; // NOVO: Tempo de recarga maior
-    public string botaoEspecial;           // NOVO: Botão para atirar o especial
+    public GameObject specialBulletPrefab; 
+    public float specialBulletSpeed = 15f; 
+    public float specialFireCooldown = 5f; 
+    public string botaoEspecial;           
     private float nextSpecialFireTime = 0f;
 
     [Header("Controles")]
     public string eixo_horizontal;
     public string eixo_vertical;
+
+    // NOVO: Variável pública que a bala especial (TiroCongelante) vai acessar
+    public bool estaCongelado = false;
 
     private Rigidbody rb;
 
@@ -34,26 +38,28 @@ public class TankBehaviour : MonoBehaviour
 
     void Update()
     {
+        // NOVO: Se o tanque estiver congelado, ele ignora o resto do código (não atira)
+        if (estaCongelado) return;
+
         // TIRO NORMAL
         if (Input.GetButtonDown(botaoAtirar) && Time.time >= nextFireTime)
         {
             nextFireTime = Time.time + fireCooldown;
-            Atirar(bulletPrefab, bulletSpeed);
+            Atirar(bulletPrefab, bulletSpeed); 
         }
 
-        // TIRO ESPECIAL (NOVO)
+        // TIRO ESPECIAL
         if (Input.GetButtonDown(botaoEspecial) && Time.time >= nextSpecialFireTime)
         {
-            // Verifica se o tanque tem um especial equipado (evita erros se não colocar nada no Inspector)
             if (specialBulletPrefab != null)
             {
                 nextSpecialFireTime = Time.time + specialFireCooldown;
-                Atirar(specialBulletPrefab, bulletSpeed); // Você pode até criar uma specialBulletSpeed se quiser
+                Atirar(specialBulletPrefab, specialBulletSpeed); 
             }
         }
     }
 
-    // Criei essa função para não repetir código de atirar duas vezes
+    // Função única para lidar com o disparo
     void Atirar(GameObject prefabDaBala, float velocidadeBala)
     {
         GameObject bullet = Instantiate(prefabDaBala, spawnPoint.position, spawnPoint.rotation);
@@ -67,6 +73,19 @@ public class TankBehaviour : MonoBehaviour
 
     void FixedUpdate()
     {
+        // NOVO: Se o tanque estiver congelado, ele para de se mover e de rotacionar
+        if (estaCongelado)
+        {
+            // Zera a velocidade de andar (mas preserva o Y para ele não flutuar caso caia)
+            rb.linearVelocity = new Vector3(0f, rb.linearVelocity.y, 0f);
+            
+            // Zera qualquer força de rotação residual
+            rb.angularVelocity = Vector3.zero; 
+            
+            // O 'return' faz o código parar aqui, impedindo que ele leia os controles abaixo
+            return; 
+        }
+
         float horizontal = Input.GetAxis(eixo_horizontal);
         float vertical = Input.GetAxis(eixo_vertical);
 

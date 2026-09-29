@@ -2455,7 +2455,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5389232944567892197, guid: 056415b5d88cb334ca4250e40790098c, type: 3}
       propertyPath: bulletSpeed
-      value: 30
+      value: 45
+      objectReference: {fileID: 0}
+    - target: {fileID: 5389232944567892197, guid: 056415b5d88cb334ca4250e40790098c, type: 3}
+      propertyPath: botaoEspecial
+      value: EspecialB
       objectReference: {fileID: 0}
     - target: {fileID: 5389232944567892197, guid: 056415b5d88cb334ca4250e40790098c, type: 3}
       propertyPath: eixo_vertical
@@ -2465,6 +2469,14 @@ PrefabInstance:
       propertyPath: eixo_horizontal
       value: Horizontal2
       objectReference: {fileID: 0}
+    - target: {fileID: 5389232944567892197, guid: 056415b5d88cb334ca4250e40790098c, type: 3}
+      propertyPath: specialBulletSpeed
+      value: 60
+      objectReference: {fileID: 0}
+    - target: {fileID: 5389232944567892197, guid: 056415b5d88cb334ca4250e40790098c, type: 3}
+      propertyPath: specialBulletPrefab
+      value: 
+      objectReference: {fileID: 5429245872691882907, guid: 10ab843b90efb6a43919ce8a15c7d2ea, type: 3}
     - target: {fileID: 7423219530394638270, guid: 056415b5d88cb334ca4250e40790098c, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
@@ -3081,7 +3093,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5389232944567892197, guid: 056415b5d88cb334ca4250e40790098c, type: 3}
       propertyPath: bulletSpeed
-      value: 30
+      value: 45
+      objectReference: {fileID: 0}
+    - target: {fileID: 5389232944567892197, guid: 056415b5d88cb334ca4250e40790098c, type: 3}
+      propertyPath: botaoEspecial
+      value: EspecialA
       objectReference: {fileID: 0}
     - target: {fileID: 5389232944567892197, guid: 056415b5d88cb334ca4250e40790098c, type: 3}
       propertyPath: eixo_vertical
@@ -3091,6 +3107,14 @@ PrefabInstance:
       propertyPath: eixo_horizontal
       value: Horizontal
       objectReference: {fileID: 0}
+    - target: {fileID: 5389232944567892197, guid: 056415b5d88cb334ca4250e40790098c, type: 3}
+      propertyPath: specialBulletSpeed
+      value: 60
+      objectReference: {fileID: 0}
+    - target: {fileID: 5389232944567892197, guid: 056415b5d88cb334ca4250e40790098c, type: 3}
+      propertyPath: specialBulletPrefab
+      value: 
+      objectReference: {fileID: 3059440230688918386, guid: 8836c00c47a7c6f42908f76cf43f8763, type: 3}
     - target: {fileID: 6441535328014069987, guid: 056415b5d88cb334ca4250e40790098c, type: 3}
       propertyPath: m_Enabled
       value: 0
