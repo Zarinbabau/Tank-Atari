@@ -10,59 +10,43 @@ public class BulletBehaviour : MonoBehaviour
     // Prefab do efeito ao atingir algo
     public GameObject bulletFX;
 
-    // O método Start precisa do modificador de acesso e da maiúscula inicial
+    // NOVO: Guarda a referência do GameManager para não ter que procurar toda hora
+    private GameManager manager;
+
     void Start()
     {
-        // Corrigida a sintaxe do tipo TextMeshProUGUI no GetComponent
         scoreA = GameObject.Find("ScoreA").GetComponent<TextMeshProUGUI>();
         scoreB = GameObject.Find("ScoreB").GetComponent<TextMeshProUGUI>();
+        
+        // Busca o GameManager uma vez só no começo
+        manager = GameObject.Find("GameManager").GetComponent<GameManager>();
     }
 
     private void OnTriggerEnter(Collider other)
     {
+        // 1. Se acertou o Tank A (Ponto para o Jogador B)
         if (other.gameObject.name == "TankA")
         {
-            // Busca o objeto GameManager e incrementa o ponto
-            GameManager manager = GameObject.Find("GameManager").GetComponent<GameManager>();
-            manager.scoreBNum++;
-
-            // Atualiza o texto do placar
-            scoreB.text = manager.scoreBNum.ToString();
-
-            // Instancia o efeito e destrói a bala
+            manager.MarcarPontoB(); // Chama APENAS a função do GameManager
+            scoreB.text = manager.scoreBNum.ToString(); // Atualiza o texto
+            
             Instantiate(bulletFX, transform.position, Quaternion.identity);
-
-            GameObject.Find("GameManager").GetComponent<GameManager>().termina();
-
             Destroy(gameObject);
         }
+        // 2. Se acertou o Tank B (Ponto para o Jogador A)
+        else if (other.gameObject.name == "TankB") // IMPORTANTE: Usar 'else if' aqui
+        {
+            manager.MarcarPontoA(); // Chama APENAS a função do GameManager
+            scoreA.text = manager.scoreANum.ToString(); // Atualiza o texto
+            
+            Instantiate(bulletFX, transform.position, Quaternion.identity);
+            Destroy(gameObject);
+        }
+        // 3. Se não for nenhum dos tanques (acertou parede, obstáculo, etc)
         else
         {
-            // Instancia o efeito na posição da bala se atingir outro objeto
             Instantiate(bulletFX, transform.position, Quaternion.identity);
             Destroy(gameObject);
         }
-        if (other.gameObject.name == "TankB")
-        {
-            // Busca o objeto GameManager e incrementa o ponto
-            GameManager manager = GameObject.Find("GameManager").GetComponent<GameManager>();
-            manager.scoreANum++;
-
-            // Atualiza o texto do placar
-            scoreA.text = manager.scoreANum.ToString();
-
-            // Instancia o efeito e destrói a bala
-            Instantiate(bulletFX, transform.position, Quaternion.identity);
- GameObject.Find("GameManager").GetComponent<GameManager>().termina();
-
-            Destroy(gameObject);
-        }
-        else
-        {
-            // Instancia o efeito na posição da bala se atingir outro objeto
-            Instantiate(bulletFX, transform.position, Quaternion.identity);
-            Destroy(gameObject);
-        }
-
     }
 }

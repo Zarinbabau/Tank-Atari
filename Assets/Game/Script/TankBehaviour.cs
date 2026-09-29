@@ -6,70 +6,73 @@ public class TankBehaviour : MonoBehaviour
     public float rotationSpeed = 180f;
 
     public Transform spawnPoint;     
+    
+    [Header("Tiro Normal")]
     public GameObject bulletPrefab;  
     public float bulletSpeed = 10f;
-
-    private Rigidbody rb;
-
     public float fireCooldown = 1f; 
+    public string botaoAtirar;
     private float nextFireTime = 0f;
 
-    public string botaoAtirar;
+    [Header("Tiro Especial")]
+    public GameObject specialBulletPrefab; // NOVO: Prefab do tiro especial
+    public float specialFireCooldown = 5f; // NOVO: Tempo de recarga maior
+    public string botaoEspecial;           // NOVO: Botão para atirar o especial
+    private float nextSpecialFireTime = 0f;
+
+    [Header("Controles")]
     public string eixo_horizontal;
     public string eixo_vertical;
 
-
-
+    private Rigidbody rb;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
-        
-        // Trava TODAS as rotações causadas por colisão/física.
-        // O script (rb.MoveRotation) continuará rotacionando normalmente.
         rb.constraints = RigidbodyConstraints.FreezeRotation;
     }
 
     void Update()
     {
+        // TIRO NORMAL
         if (Input.GetButtonDown(botaoAtirar) && Time.time >= nextFireTime)
         {
             nextFireTime = Time.time + fireCooldown;
+            Atirar(bulletPrefab, bulletSpeed);
+        }
 
-            GameObject bullet = Instantiate(
-                bulletPrefab,
-                spawnPoint.position,
-                spawnPoint.rotation
-            );
-
-            Rigidbody bulletRb = bullet.GetComponent<Rigidbody>();
-
-            if (bulletRb != null)
+        // TIRO ESPECIAL (NOVO)
+        if (Input.GetButtonDown(botaoEspecial) && Time.time >= nextSpecialFireTime)
+        {
+            // Verifica se o tanque tem um especial equipado (evita erros se não colocar nada no Inspector)
+            if (specialBulletPrefab != null)
             {
-                bulletRb.linearVelocity = spawnPoint.right * bulletSpeed;
+                nextSpecialFireTime = Time.time + specialFireCooldown;
+                Atirar(specialBulletPrefab, bulletSpeed); // Você pode até criar uma specialBulletSpeed se quiser
             }
+        }
+    }
+
+    // Criei essa função para não repetir código de atirar duas vezes
+    void Atirar(GameObject prefabDaBala, float velocidadeBala)
+    {
+        GameObject bullet = Instantiate(prefabDaBala, spawnPoint.position, spawnPoint.rotation);
+        Rigidbody bulletRb = bullet.GetComponent<Rigidbody>();
+
+        if (bulletRb != null)
+        {
+            bulletRb.linearVelocity = spawnPoint.right * velocidadeBala;
         }
     }
 
     void FixedUpdate()
     {
-        // Rotação controlada exclusivamente pelo jogador
-
-        //float horizontal = Input.GetAxis("Horizontal");
-        //float vertical = Input.GetAxis("Vertical");
-
         float horizontal = Input.GetAxis(eixo_horizontal);
         float vertical = Input.GetAxis(eixo_vertical);
 
-        Quaternion deltaRotation = Quaternion.Euler(
-            0f,
-            horizontal * rotationSpeed * Time.fixedDeltaTime,
-            0f
-        );
-
+        Quaternion deltaRotation = Quaternion.Euler(0f, horizontal * rotationSpeed * Time.fixedDeltaTime, 0f);
         rb.MoveRotation(rb.rotation * deltaRotation);
 
-        // Movimento (preserva a velocidade Y para gravidade)
         Vector3 targetVelocity = transform.right * vertical * moveSpeed;
         rb.linearVelocity = new Vector3(targetVelocity.x, rb.linearVelocity.y, targetVelocity.z);
     }
