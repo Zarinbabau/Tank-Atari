@@ -13,6 +13,7 @@ public class TankBehaviour : MonoBehaviour
     public float fireCooldown = 1f; 
     public string botaoAtirar;
     private float nextFireTime = 0f;
+    public AudioClip somTiroNormal; // NOVO: Som do tiro normal
 
     [Header("Tiro Especial")]
     public GameObject specialBulletPrefab; 
@@ -20,14 +21,16 @@ public class TankBehaviour : MonoBehaviour
     public float specialFireCooldown = 5f; 
     public string botaoEspecial;           
     private float nextSpecialFireTime = 0f;
+    public AudioClip somTiroEspecial; // NOVO: Som do tiro especial
 
     [Header("Controles")]
     public string eixo_horizontal;
     public string eixo_vertical;
 
-    // NOVO: Variável pública que a bala especial (TiroCongelante) vai acessar
-    public bool estaCongelado = false;
+    [Header("Áudio")]
+    public AudioSource tankAudio; // NOVO: O "alto-falante" do tanque
 
+    public bool estaCongelado = false;
     private Rigidbody rb;
 
     void Awake()
@@ -38,14 +41,14 @@ public class TankBehaviour : MonoBehaviour
 
     void Update()
     {
-        // NOVO: Se o tanque estiver congelado, ele ignora o resto do código (não atira)
         if (estaCongelado) return;
 
         // TIRO NORMAL
         if (Input.GetButtonDown(botaoAtirar) && Time.time >= nextFireTime)
         {
             nextFireTime = Time.time + fireCooldown;
-            Atirar(bulletPrefab, bulletSpeed); 
+            // Agora enviamos o som normal junto com o tiro
+            Atirar(bulletPrefab, bulletSpeed, somTiroNormal); 
         }
 
         // TIRO ESPECIAL
@@ -54,13 +57,14 @@ public class TankBehaviour : MonoBehaviour
             if (specialBulletPrefab != null)
             {
                 nextSpecialFireTime = Time.time + specialFireCooldown;
-                Atirar(specialBulletPrefab, specialBulletSpeed); 
+                // Agora enviamos o som especial junto com o tiro
+                Atirar(specialBulletPrefab, specialBulletSpeed, somTiroEspecial); 
             }
         }
     }
 
-    // Função única para lidar com o disparo
-    void Atirar(GameObject prefabDaBala, float velocidadeBala)
+    // Função única para lidar com o disparo (Agora recebe também o som)
+    void Atirar(GameObject prefabDaBala, float velocidadeBala, AudioClip somDoTiro)
     {
         GameObject bullet = Instantiate(prefabDaBala, spawnPoint.position, spawnPoint.rotation);
         Rigidbody bulletRb = bullet.GetComponent<Rigidbody>();
@@ -69,20 +73,20 @@ public class TankBehaviour : MonoBehaviour
         {
             bulletRb.linearVelocity = spawnPoint.right * velocidadeBala;
         }
+
+        // NOVO: Toca o som do tiro se o alto-falante e o som estiverem configurados
+        if (tankAudio != null && somDoTiro != null)
+        {
+            tankAudio.PlayOneShot(somDoTiro); // PlayOneShot permite tocar vários tiros sem um cortar o outro
+        }
     }
 
     void FixedUpdate()
     {
-        // NOVO: Se o tanque estiver congelado, ele para de se mover e de rotacionar
         if (estaCongelado)
         {
-            // Zera a velocidade de andar (mas preserva o Y para ele não flutuar caso caia)
             rb.linearVelocity = new Vector3(0f, rb.linearVelocity.y, 0f);
-            
-            // Zera qualquer força de rotação residual
             rb.angularVelocity = Vector3.zero; 
-            
-            // O 'return' faz o código parar aqui, impedindo que ele leia os controles abaixo
             return; 
         }
 
